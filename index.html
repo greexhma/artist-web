@@ -1,0 +1,3058 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>STUDIO — Artist Portfolio</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        ink: "#080808",
+        gold: "#C8A45D",
+        cream: "#F4F1EA"
+      },
+      fontFamily: {
+        display: ["Playfair Display", "serif"],
+        sans: ["DM Sans", "sans-serif"]
+      }
+    }
+  }
+};
+</script>
+
+<style>
+
+/* =====================================================
+   GLOBAL
+===================================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: #080808;
+  color: #F4F1EA;
+  font-family: "DM Sans", sans-serif;
+  overflow-x: hidden;
+}
+
+body.loading {
+  overflow: hidden;
+}
+
+::selection {
+  background: #C8A45D;
+  color: #080808;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+
+/* =====================================================
+   LOADER
+===================================================== */
+
+#loader {
+  position: fixed;
+  inset: 0;
+  background: #080808;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loader-inner {
+  text-align: center;
+}
+
+.loader-logo {
+  font-family: "Playfair Display", serif;
+  font-size: 42px;
+  letter-spacing: .15em;
+}
+
+.loader-line {
+  width: 0;
+  height: 1px;
+  background: #C8A45D;
+  margin: 20px auto 0;
+}
+
+
+/* =====================================================
+   CUSTOM CURSOR
+===================================================== */
+
+#cursor {
+  position: fixed;
+  width: 12px;
+  height: 12px;
+  border: 1px solid #C8A45D;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 99998;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+}
+
+#cursorText {
+  position: fixed;
+  pointer-events: none;
+  z-index: 99999;
+  transform: translate(-50%, -50%);
+  font-size: 8px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: #C8A45D;
+  opacity: 0;
+}
+
+.cursor-large {
+  width: 65px !important;
+  height: 65px !important;
+  background: rgba(200,164,93,.08);
+}
+
+
+/* =====================================================
+   NAVIGATION
+===================================================== */
+
+#navbar {
+  transition:
+    background .5s ease,
+    border .5s ease,
+    padding .5s ease;
+}
+
+#navbar.scrolled {
+  background: rgba(8,8,8,.75);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+
+/* =====================================================
+   HERO
+===================================================== */
+
+.hero {
+  position: relative;
+  height: 100vh;
+  min-height: 680px;
+  overflow: hidden;
+  background: #080808;
+}
+
+#heroCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.noise {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: .045;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.hero-title {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.hero-title h1 {
+  font-family: "Playfair Display", serif;
+  font-size: clamp(4rem, 11vw, 11rem);
+  line-height: .82;
+  letter-spacing: -.07em;
+  font-weight: 500;
+}
+
+.hero-eyebrow {
+  font-size: 10px;
+  letter-spacing: .4em;
+  text-transform: uppercase;
+  color: #C8A45D;
+  margin-bottom: 28px;
+}
+
+.outline {
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(244,241,234,.75);
+}
+
+.hero-subtitle {
+  margin-top: 32px;
+  font-size: 9px;
+  letter-spacing: .4em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.4);
+}
+
+#heroArtwork {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  top: 50%;
+  width: min(34vw,460px);
+  height: min(48vw,620px);
+  max-height: 72vh;
+  object-fit: cover;
+  transform: translate(-50%,-50%) scale(.45);
+  opacity: 0;
+  filter: grayscale(100%) contrast(1.2);
+  box-shadow: 0 50px 120px rgba(0,0,0,.8);
+}
+
+#heroFrame {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  top: 50%;
+  width: min(42vw,560px);
+  height: min(57vw,730px);
+  max-height: 79vh;
+  transform: translate(-50%,-50%) scale(.4);
+  border: 1px solid rgba(200,164,93,.7);
+  opacity: 0;
+}
+
+#heroFrame:before,
+#heroFrame:after {
+  content: "";
+  position: absolute;
+  width: 70px;
+  height: 70px;
+}
+
+#heroFrame:before {
+  left: -1px;
+  top: -1px;
+  border-top: 2px solid #C8A45D;
+  border-left: 2px solid #C8A45D;
+}
+
+#heroFrame:after {
+  right: -1px;
+  bottom: -1px;
+  border-right: 2px solid #C8A45D;
+  border-bottom: 2px solid #C8A45D;
+}
+
+#orbit {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 50%;
+  width: min(60vw,850px);
+  height: min(60vw,850px);
+  border: 1px solid rgba(255,255,255,.055);
+  border-radius: 50%;
+  transform: translate(-50%,-50%);
+  opacity: 0;
+}
+
+#orbit:before {
+  content: "";
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  background: #C8A45D;
+  border-radius: 50%;
+}
+
+.hero-caption {
+  position: absolute;
+  z-index: 10;
+  left: 7vw;
+  bottom: 9vh;
+  max-width: 260px;
+  opacity: 0;
+}
+
+.hero-caption-line {
+  width: 50px;
+  height: 1px;
+  background: #C8A45D;
+  margin-bottom: 18px;
+}
+
+.hero-caption p {
+  color: rgba(255,255,255,.45);
+  font-size: 11px;
+  line-height: 1.9;
+}
+
+.hero-number {
+  position: absolute;
+  right: 7vw;
+  bottom: 9vh;
+  color: rgba(255,255,255,.4);
+  font-family: "Playfair Display", serif;
+  font-size: 12px;
+  opacity: 0;
+}
+
+.scroll-indicator {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  text-align: center;
+  color: rgba(255,255,255,.4);
+  font-size: 8px;
+  letter-spacing: .35em;
+  text-transform: uppercase;
+}
+
+.scroll-line {
+  width: 1px;
+  height: 55px;
+  margin: 12px auto 0;
+  background: linear-gradient(#C8A45D,transparent);
+}
+
+
+/* =====================================================
+   SECTIONS
+===================================================== */
+
+.section {
+  position: relative;
+  padding: 150px 7vw;
+  background: #080808;
+}
+
+.section-dark {
+  background: #111111;
+}
+
+.eyebrow {
+  color: #C8A45D;
+  font-size: 9px;
+  letter-spacing: .35em;
+  text-transform: uppercase;
+}
+
+.display-title {
+  font-family: "Playfair Display", serif;
+  font-size: clamp(3rem,6.5vw,7rem);
+  line-height: .9;
+  letter-spacing: -.05em;
+  font-weight: 500;
+}
+
+
+/* =====================================================
+   TEXT REVEAL
+===================================================== */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(70px);
+}
+
+
+/* =====================================================
+   MARQUEE
+===================================================== */
+
+.marquee {
+  overflow: hidden;
+  white-space: nowrap;
+  border-top: 1px solid rgba(255,255,255,.08);
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  padding: 25px 0;
+}
+
+.marquee-track {
+  display: inline-block;
+  font-family: "Playfair Display", serif;
+  font-size: clamp(2rem,4vw,4rem);
+  color: rgba(255,255,255,.12);
+}
+
+.marquee-track span {
+  margin: 0 35px;
+}
+
+
+/* =====================================================
+   GALLERY
+===================================================== */
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(12,1fr);
+  gap: 25px;
+}
+
+.art-card {
+  position: relative;
+  overflow: hidden;
+  background: #151515;
+}
+
+.art-card:nth-child(1) {
+  grid-column: span 7;
+}
+
+.art-card:nth-child(2) {
+  grid-column: span 5;
+  margin-top: 110px;
+}
+
+.art-card:nth-child(3) {
+  grid-column: span 5;
+  margin-top: -50px;
+}
+
+.art-card:nth-child(4) {
+  grid-column: span 7;
+}
+
+.art-card img {
+  width: 100%;
+  height: 620px;
+  object-fit: cover;
+  filter: grayscale(25%);
+  transition:
+    transform 1.2s cubic-bezier(.2,.7,.2,1),
+    filter .7s ease;
+}
+
+.art-card:nth-child(2) img,
+.art-card:nth-child(3) img {
+  height: 500px;
+}
+
+.art-card:hover img {
+  transform: scale(1.08);
+  filter: grayscale(0%);
+}
+
+.art-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0,0,0,.75),
+    transparent 55%
+  );
+  pointer-events: none;
+}
+
+.art-info {
+  position: absolute;
+  left: 25px;
+  right: 25px;
+  bottom: 25px;
+  z-index: 2;
+  transform: translateY(20px);
+  opacity: 0;
+  transition: all .5s ease;
+}
+
+.art-card:hover .art-info {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+
+/* =====================================================
+   HORIZONTAL GALLERY
+===================================================== */
+
+.horizontal-section {
+  height: 100vh;
+  min-height: 700px;
+  overflow: hidden;
+  background: #080808;
+}
+
+.horizontal-track {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 45px;
+  width: max-content;
+  padding-left: 7vw;
+}
+
+.horizontal-intro {
+  width: 450px;
+  flex-shrink: 0;
+}
+
+.horizontal-card {
+  position: relative;
+  width: 450px;
+  height: 65vh;
+  min-height: 450px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.horizontal-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 1s ease;
+}
+
+.horizontal-card:hover img {
+  transform: scale(1.08);
+}
+
+.horizontal-card-info {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 20px;
+  padding: 18px;
+  background: rgba(8,8,8,.7);
+  backdrop-filter: blur(15px);
+}
+
+
+
+
+
+
+/* =====================================================
+   SKETCH TO ART — RESPONSIVE FIX
+===================================================== */
+
+.transform-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 1400px;
+  aspect-ratio: 16 / 9;
+  min-height: 420px;
+  max-height: 760px;
+  margin: 0 auto;
+  overflow: hidden;
+  background: #151515;
+}
+
+/* Both artworks occupy EXACTLY the same area */
+
+.transform-wrap img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+
+  /* IMPORTANT */
+  object-fit: contain;
+  object-position: center center;
+
+  max-width: none;
+}
+
+/* Finished artwork starts hidden */
+
+#finalArt {
+  clip-path: inset(0 100% 0 0);
+}
+
+/* Transformation line */
+
+.transform-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 2px;
+  background: #C8A45D;
+  z-index: 10;
+  pointer-events: none;
+  box-shadow: 0 0 15px rgba(200,164,93,.5);
+}
+
+
+/* Corner details */
+
+.transform-wrap::before,
+.transform-wrap::after {
+  content: "";
+  position: absolute;
+  z-index: 20;
+  width: 35px;
+  height: 35px;
+  pointer-events: none;
+}
+
+.transform-wrap::before {
+  top: 18px;
+  left: 18px;
+  border-top: 1px solid rgba(255,255,255,.7);
+  border-left: 1px solid rgba(255,255,255,.7);
+}
+
+.transform-wrap::after {
+  right: 18px;
+  bottom: 18px;
+  border-right: 1px solid rgba(255,255,255,.7);
+  border-bottom: 1px solid rgba(255,255,255,.7);
+}
+
+
+/* =====================================================
+   TABLET
+===================================================== */
+
+@media (max-width: 900px) {
+
+  .transform-wrap {
+    aspect-ratio: 4 / 3;
+    min-height: 400px;
+    max-height: 650px;
+  }
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 768px) {
+
+  .transform-wrap {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    min-height: 420px;
+    max-height: 600px;
+  }
+
+  .transform-wrap img {
+    object-fit: contain;
+  }
+
+  .transform-line {
+    width: 1px;
+  }
+
+}
+
+
+/* SMALL PHONES */
+
+@media (max-width: 480px) {
+
+  .transform-wrap {
+    aspect-ratio: 3 / 4;
+    min-height: 380px;
+  }
+
+}
+
+
+
+
+
+
+
+/* =====================================================
+   PROCESS
+===================================================== */
+
+.process-grid {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 1px;
+  background: rgba(255,255,255,.08);
+}
+
+.process-card {
+  position: relative;
+  min-height: 350px;
+  padding: 50px 40px;
+  background: #111111;
+  overflow: hidden;
+}
+
+.process-card:after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: #C8A45D;
+  transition: width .6s ease;
+}
+
+.process-card:hover:after {
+  width: 100%;
+}
+
+.process-number {
+  font-family: "Playfair Display",serif;
+  font-size: 5rem;
+  color: rgba(200,164,93,.22);
+}
+
+
+/* =====================================================
+   COMMISSION
+===================================================== */
+
+.commission-grid {
+  max-width: 1100px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+.upload-box {
+  min-height: 440px;
+  border: 1px dashed rgba(255,255,255,.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  transition: .4s ease;
+  overflow: hidden;
+}
+
+.upload-box:hover {
+  border-color: #C8A45D;
+  background: rgba(200,164,93,.03);
+}
+
+#preview {
+  display: none;
+  width: 100%;
+  height: 440px;
+  object-fit: cover;
+}
+
+.field {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255,255,255,.15);
+  color: white;
+  outline: none;
+  padding: 17px 0;
+  font-family: "DM Sans",sans-serif;
+}
+
+.field:focus {
+  border-color: #C8A45D;
+}
+
+.field::placeholder {
+  color: rgba(255,255,255,.3);
+}
+
+.gold-button {
+  display: inline-block;
+  border: 1px solid #C8A45D;
+  background: transparent;
+  color: #C8A45D;
+  padding: 16px 28px;
+  font-size: 9px;
+  letter-spacing: .25em;
+  text-transform: uppercase;
+  transition: .35s ease;
+}
+
+.gold-button:hover {
+  background: #C8A45D;
+  color: #080808;
+}
+
+
+/* =====================================================
+   CONTACT
+===================================================== */
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 30px;
+  margin-top: 80px;
+  border-top: 1px solid rgba(255,255,255,.1);
+}
+
+.contact-item {
+  padding: 40px 0;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+}
+
+.contact-value {
+  font-family: "Playfair Display",serif;
+  font-size: clamp(1.4rem,2.5vw,2.5rem);
+  color: rgba(255,255,255,.7);
+  transition: color .3s ease;
+}
+
+.contact-item:hover .contact-value {
+  color: #C8A45D;
+}
+
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+footer {
+  padding: 90px 7vw 40px;
+  background: #080808;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(max-width:768px) {
+
+  #cursor,
+  #cursorText {
+    display: none;
+  }
+
+  .hero {
+    min-height: 650px;
+  }
+
+  .hero-title h1 {
+    font-size: 18vw;
+  }
+
+  #heroArtwork {
+    width: 58vw;
+    height: 72vw;
+    max-height: 63vh;
+  }
+
+  #heroFrame {
+    width: 68vw;
+    height: 80vw;
+  }
+
+  #orbit {
+    width: 100vw;
+    height: 100vw;
+  }
+
+  .hero-caption {
+    left: 24px;
+    bottom: 65px;
+    max-width: 190px;
+  }
+
+  .hero-number {
+    right: 24px;
+    bottom: 65px;
+  }
+
+  .section {
+    padding: 100px 24px;
+  }
+
+  .gallery-grid {
+    display: block;
+  }
+
+  .art-card,
+  .art-card:nth-child(2),
+  .art-card:nth-child(3),
+  .art-card:nth-child(4) {
+    margin: 0 0 25px;
+  }
+
+  .art-card img,
+  .art-card:nth-child(2) img,
+  .art-card:nth-child(3) img {
+    height: 480px;
+  }
+
+  .art-info {
+    opacity: 1;
+    transform: none;
+  }
+
+  .horizontal-section {
+    height: auto;
+    min-height: auto;
+    padding: 100px 24px;
+  }
+
+  .horizontal-track {
+    width: auto;
+    height: auto;
+    display: block;
+    padding: 0;
+  }
+
+  .horizontal-intro {
+    width: auto;
+    margin-bottom: 50px;
+  }
+
+  .horizontal-card {
+    width: 100%;
+    height: 500px;
+    margin-bottom: 25px;
+  }
+
+  .process-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .commission-grid {
+    grid-template-columns: 1fr;
+    gap: 50px;
+  }
+
+  .contact-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .transform-wrap {
+    height: 450px;
+  }
+
+  #preview {
+    height: 450px;
+  }
+
+  .nav-links {
+    display: none;
+  }
+}
+
+</style>
+</head>
+
+
+<body class="loading">
+
+
+<!-- =====================================================
+     LOADER
+===================================================== -->
+
+<div id="loader">
+
+  <div class="loader-inner">
+
+    <div class="loader-logo">
+      STUDIO<span style="color:#C8A45D">.</span>
+    </div>
+
+    <div class="loader-line"></div>
+
+  </div>
+
+</div>
+
+
+<!-- CUSTOM CURSOR -->
+
+<div id="cursor"></div>
+<div id="cursorText">View</div>
+
+
+<!-- =====================================================
+     NAVIGATION
+===================================================== -->
+
+<nav
+  id="navbar"
+  class="fixed top-0 left-0 w-full z-50 px-[7vw] py-7 border-b border-transparent"
+>
+
+  <div class="flex justify-between items-center">
+
+    <a
+      href="#home"
+      class="font-display text-2xl"
+    >
+      STUDIO<span class="text-gold">.</span>
+    </a>
+
+
+    <div class="nav-links flex items-center gap-9">
+
+      <a
+        href="#works"
+        class="text-[9px] uppercase tracking-[.25em] text-white/50 hover:text-white transition"
+      >
+        Works
+      </a>
+
+      <a
+        href="#journey"
+        class="text-[9px] uppercase tracking-[.25em] text-white/50 hover:text-white transition"
+      >
+        Journey
+      </a>
+
+      <a
+        href="#process"
+        class="text-[9px] uppercase tracking-[.25em] text-white/50 hover:text-white transition"
+      >
+        Process
+      </a>
+
+      <a
+        href="#contact"
+        class="gold-button !py-3 !px-5"
+      >
+        Contact
+      </a>
+
+    </div>
+
+  </div>
+
+</nav>
+
+
+<!-- =====================================================
+     MAIN
+===================================================== -->
+
+<main>
+
+
+<!-- =====================================================
+     HERO
+===================================================== -->
+
+<section
+  id="home"
+  class="hero"
+>
+
+  <canvas id="heroCanvas"></canvas>
+
+  <div class="noise"></div>
+
+  <div id="orbit"></div>
+
+  <div id="heroFrame"></div>
+
+
+  <!-- MAIN HERO ARTWORK -->
+
+  <img
+    id="heroArtwork"
+    src="images/artwork-hero.jpg"
+    alt="Featured artwork"
+  >
+
+
+  <div id="heroTitle" class="hero-title">
+
+    <div>
+
+      <div class="hero-eyebrow">
+        Artist • Illustrator • Visual Creator
+      </div>
+
+      <h1>
+        ART
+        <br>
+        <span class="outline">
+          IN MOTION
+        </span>
+      </h1>
+
+      <div class="hero-subtitle">
+        Scroll to enter the studio
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div id="heroCaption" class="hero-caption">
+
+    <div class="hero-caption-line"></div>
+
+    <p>
+      Pencil drawings, portraits,
+      digital paintings and cinematic
+      visual creations.
+    </p>
+
+  </div>
+
+
+  <div id="heroNumber" class="hero-number">
+    01 / 04
+  </div>
+
+
+  <div class="scroll-indicator">
+
+    Scroll
+
+    <div class="scroll-line"></div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     INTRO
+===================================================== -->
+
+<section class="section">
+
+  <div class="max-w-6xl mx-auto">
+
+    <div class="grid md:grid-cols-2 gap-20 items-center">
+
+      <div class="reveal">
+
+        <div class="eyebrow mb-6">
+          The Artist
+        </div>
+
+        <h2 class="display-title">
+          Turning
+          <br>
+          <i>moments</i>
+          <br>
+          into art.
+        </h2>
+
+      </div>
+
+
+      <div class="reveal">
+
+        <div class="w-16 h-px bg-gold mb-8"></div>
+
+        <p class="text-white/55 leading-8 text-sm md:text-base">
+
+          Every portrait begins with a story.
+          Every line has a purpose.
+
+          From detailed graphite sketches to
+          digital paintings and experimental
+          AI visuals, the studio transforms
+          ideas into visual experiences.
+
+        </p>
+
+        <p class="text-white/30 leading-8 text-sm mt-7">
+
+          Explore the collection and discover
+          the creative process behind each piece.
+
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     MARQUEE
+===================================================== -->
+
+<div class="marquee">
+
+  <div
+    id="marqueeTrack"
+    class="marquee-track"
+  >
+
+    <span>PORTRAITS</span>
+    •
+    <span>PENCIL</span>
+    •
+    <span>CHARCOAL</span>
+    •
+    <span>DIGITAL</span>
+    •
+    <span>AI VISUALS</span>
+    •
+    <span>PORTRAITS</span>
+    •
+    <span>PENCIL</span>
+    •
+
+  </div>
+
+</div>
+
+
+<!-- =====================================================
+     SELECTED WORKS
+===================================================== -->
+
+<section
+  id="works"
+  class="section section-dark"
+>
+
+  <div class="max-w-7xl mx-auto">
+
+    <div class="flex flex-col md:flex-row justify-between md:items-end mb-20 reveal">
+
+      <div>
+
+        <div class="eyebrow mb-5">
+          Selected Works
+        </div>
+
+        <h2 class="display-title">
+          The
+          <br>
+          Collection
+        </h2>
+
+      </div>
+
+      <p class="text-white/35 max-w-sm text-sm leading-7 mt-8 md:mt-0">
+
+        A collection of portraits,
+        sketches, digital paintings
+        and experimental creations.
+
+      </p>
+
+    </div>
+
+
+    <div class="gallery-grid">
+
+
+      <!-- 01 -->
+
+      <article class="art-card reveal magnetic-art">
+
+        <img
+          src="images/artwork-01.png"
+          alt="Portrait artwork"
+          loading="lazy"
+        >
+
+        <div class="art-overlay"></div>
+
+        <div class="art-info">
+
+          <div class="eyebrow mb-2">
+            01 / Portrait
+          </div>
+
+          <h3 class="font-display text-3xl">
+            Silent Expression
+          </h3>
+
+          <p class="text-white/40 text-xs mt-2">
+            Graphite on paper
+          </p>
+
+        </div>
+
+      </article>
+
+
+      <!-- 02 -->
+
+      <article class="art-card reveal magnetic-art">
+
+        <img
+          src="images/artwork-02.jpg"
+          alt="Pencil drawing"
+          loading="lazy"
+        >
+
+        <div class="art-overlay"></div>
+
+        <div class="art-info">
+
+          <div class="eyebrow mb-2">
+            02 / Drawing
+          </div>
+
+          <h3 class="font-display text-3xl">
+            Human Detail
+          </h3>
+
+          <p class="text-white/40 text-xs mt-2">
+            Pencil & charcoal
+          </p>
+
+        </div>
+
+      </article>
+
+
+      <!-- 03 -->
+
+      <article class="art-card reveal magnetic-art">
+
+        <img
+          src="images/artwork-03.jpg"
+          alt="Digital artwork"
+          loading="lazy"
+        >
+
+        <div class="art-overlay"></div>
+
+        <div class="art-info">
+
+          <div class="eyebrow mb-2">
+            03 / Digital
+          </div>
+
+          <h3 class="font-display text-3xl">
+            Dream State
+          </h3>
+
+          <p class="text-white/40 text-xs mt-2">
+            Digital painting
+          </p>
+
+        </div>
+
+      </article>
+
+
+      <!-- 04 -->
+
+      <article class="art-card reveal magnetic-art">
+
+        <img
+          src="images/artwork-04.jpg"
+          alt="AI visual artwork"
+          loading="lazy"
+        >
+
+        <div class="art-overlay"></div>
+
+        <div class="art-info">
+
+          <div class="eyebrow mb-2">
+            04 / Visual
+          </div>
+
+          <h3 class="font-display text-3xl">
+            Beyond Reality
+          </h3>
+
+          <p class="text-white/40 text-xs mt-2">
+            AI visual creation
+          </p>
+
+        </div>
+
+      </article>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     HORIZONTAL JOURNEY
+===================================================== -->
+
+<section
+  id="journey"
+  class="horizontal-section"
+>
+
+  <div
+    id="horizontalTrack"
+    class="horizontal-track"
+  >
+
+
+    <div class="horizontal-intro">
+
+      <div class="eyebrow mb-6">
+        Art Journey
+      </div>
+
+      <h2 class="display-title">
+        One
+        <br>
+        frame.
+        <br>
+        <i>Many stories.</i>
+      </h2>
+
+      <p class="text-white/35 text-sm leading-7 mt-8 max-w-sm">
+
+        Keep scrolling to move through
+        the artist's visual world.
+
+      </p>
+
+    </div>
+
+
+    <div class="horizontal-card">
+
+      <img
+        src="images/artwork-01.png"
+        alt="Portrait"
+      >
+
+      <div class="horizontal-card-info">
+
+        <div class="eyebrow">
+          Graphite
+        </div>
+
+        <div class="font-display text-2xl mt-1">
+          Portrait
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="horizontal-card">
+
+      <img
+        src="images/artwork-02.jpg"
+        alt="Drawing"
+      >
+
+      <div class="horizontal-card-info">
+
+        <div class="eyebrow">
+          Charcoal
+        </div>
+
+        <div class="font-display text-2xl mt-1">
+          Emotion
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="horizontal-card">
+
+      <img
+        src="images/artwork-03.jpg"
+        alt="Digital artwork"
+      >
+
+      <div class="horizontal-card-info">
+
+        <div class="eyebrow">
+          Digital
+        </div>
+
+        <div class="font-display text-2xl mt-1">
+          Dream
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="horizontal-card">
+
+      <img
+        src="images/artwork-04.jpg"
+        alt="AI artwork"
+      >
+
+      <div class="horizontal-card-info">
+
+        <div class="eyebrow">
+          AI Visual
+        </div>
+
+        <div class="font-display text-2xl mt-1">
+          Future
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     TRANSFORMATION
+===================================================== -->
+
+<section class="section">
+
+  <div class="max-w-7xl mx-auto">
+
+<div class="grid md:grid-cols-2 gap-12 lg:gap-16 items-end mb-12 lg:mb-16 reveal">
+<div class="transform-heading">
+
+        <div class="eyebrow mb-5">
+          Sketch To Art
+        </div>
+
+        <h2 class="display-title">
+          Watch the
+          <br>
+          <i>transformation.</i>
+        </h2>
+
+      </div>
+
+      <p class="text-white/35 text-sm leading-7 max-w-md">
+
+        From the first pencil mark to
+        the final visual — art evolves
+        one detail at a time.
+
+      </p>
+
+    </div>
+
+
+    <div
+      id="transform"
+      class="transform-wrap reveal"
+    >
+
+      <img
+        src="images/artwork-before.jpg"
+        alt="Original sketch"
+      >
+
+      <img
+        id="finalArt"
+        src="images/artwork-after.jpg"
+        alt="Finished artwork"
+      >
+
+      <div
+        id="transformLine"
+        class="transform-line"
+      ></div>
+
+      <div class="absolute top-5 left-5 text-[12px] uppercase tracking-[.3em] text-white/50">
+        Original
+      </div>
+
+      <div class="absolute top-5 right-5 text-[12px] uppercase tracking-[.3em] text-white/50">
+    Finished
+</div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     PROCESS
+===================================================== -->
+
+<section
+  id="process"
+  class="section section-dark"
+>
+
+  <div class="max-w-7xl mx-auto">
+
+    <div class="max-w-3xl mb-20 reveal">
+
+      <div class="eyebrow mb-5">
+        The Process
+      </div>
+
+      <h2 class="display-title">
+        From idea
+        <br>
+        <i>to reality.</i>
+      </h2>
+
+    </div>
+
+
+    <div class="process-grid">
+
+
+      <div class="process-card reveal">
+
+        <div class="process-number">
+          01
+        </div>
+
+        <h3 class="font-display text-3xl mt-7">
+          Share Your Idea
+        </h3>
+
+        <p class="text-white/35 text-sm leading-7 mt-5">
+          Send a photograph, concept
+          or creative direction.
+        </p>
+
+      </div>
+
+
+      <div class="process-card reveal">
+
+        <div class="process-number">
+          02
+        </div>
+
+        <h3 class="font-display text-3xl mt-7">
+          Choose The Style
+        </h3>
+
+        <p class="text-white/35 text-sm leading-7 mt-5">
+          Pencil, charcoal, digital,
+          canvas or custom artwork.
+        </p>
+
+      </div>
+
+
+      <div class="process-card reveal">
+
+        <div class="process-number">
+          03
+        </div>
+
+        <h3 class="font-display text-3xl mt-7">
+          Create The Art
+        </h3>
+
+        <p class="text-white/35 text-sm leading-7 mt-5">
+          Watch the idea become
+          a finished visual artwork.
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     COMMISSION
+===================================================== -->
+
+<section
+  id="commission"
+  class="section"
+>
+
+  <div class="commission-grid">
+
+
+    <div class="reveal">
+
+      <div class="eyebrow mb-5">
+        Commission
+      </div>
+
+      <h2 class="display-title">
+        Draw
+        <br>
+        <i>your story.</i>
+      </h2>
+
+      <p class="text-white/35 text-sm leading-8 mt-8 max-w-md">
+
+        Have a photograph or idea
+        you want transformed into
+        a unique artwork?
+
+      </p>
+
+
+      <label
+        for="photoInput"
+        class="upload-box mt-10"
+      >
+
+        <div id="uploadContent">
+
+          <div class="text-gold text-5xl mb-5">
+            +
+          </div>
+
+          <p class="text-sm">
+            Upload Reference Photo
+          </p>
+
+          <p class="text-xs text-white/30 mt-2">
+            JPG / PNG / WEBP — Max 10MB
+          </p>
+
+        </div>
+
+
+        <img
+          id="preview"
+          alt="Uploaded image"
+        >
+
+      </label>
+
+
+      <input
+        id="photoInput"
+        type="file"
+        accept="image/*"
+        class="hidden"
+      >
+
+    </div>
+
+
+    <form
+      id="commissionForm"
+      class="space-y-7 reveal"
+    >
+
+      <input
+        class="field"
+        type="text"
+        placeholder="Your Name"
+        required
+      >
+
+      <input
+        class="field"
+        type="text"
+        placeholder="Instagram / WhatsApp / Email"
+        required
+      >
+
+      <select class="field">
+
+        <option value="">
+          Select Artwork Style
+        </option>
+
+        <option>
+          Pencil Drawing
+        </option>
+
+        <option>
+          Charcoal Drawing
+        </option>
+
+        <option>
+          Digital Painting
+        </option>
+
+        <option>
+          Canvas Painting
+        </option>
+
+        <option>
+          AI Video
+        </option>
+
+      </select>
+
+
+      <select class="field">
+
+        <option>
+          A4
+        </option>
+
+        <option>
+          A3
+        </option>
+
+        <option>
+          A2
+        </option>
+
+        <option>
+          Custom Size
+        </option>
+
+      </select>
+
+
+      <textarea
+        class="field resize-none"
+        rows="5"
+        placeholder="Tell me about your artwork..."
+      ></textarea>
+
+
+      <button
+        type="submit"
+        class="gold-button w-full"
+      >
+        Request Artwork
+      </button>
+
+      <p
+        id="commissionMessage"
+        class="hidden text-center text-xs text-gold"
+      ></p>
+
+    </form>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     CONTACT
+===================================================== -->
+
+<section
+  id="contact"
+  class="section section-dark"
+>
+
+  <div class="max-w-5xl mx-auto">
+
+    <div class="text-center reveal">
+
+      <div class="eyebrow mb-6">
+        Contact
+      </div>
+
+      <h2 class="display-title">
+        Let's create
+        <br>
+        <i>something beautiful.</i>
+      </h2>
+
+      <p class="text-white/35 max-w-xl mx-auto mt-8 text-sm leading-8">
+
+        For commissions, collaborations
+        or general enquiries, get in touch.
+
+      </p>
+
+    </div>
+
+
+    <form
+      id="contactForm"
+      class="max-w-3xl mx-auto mt-16 space-y-8 reveal"
+    >
+
+      <input
+        id="contactName"
+        class="field"
+        type="text"
+        placeholder="Name"
+        required
+      >
+
+      <input
+        id="contactEmail"
+        class="field"
+        type="email"
+        placeholder="Email"
+        required
+      >
+
+      <input
+        id="contactPhone"
+        class="field"
+        type="tel"
+        placeholder="Phone Number"
+      >
+
+      <textarea
+        id="contactText"
+        class="field resize-none"
+        rows="6"
+        placeholder="Message"
+        required
+      ></textarea>
+
+
+      <button
+        type="submit"
+        class="gold-button w-full"
+      >
+        Send Message
+      </button>
+
+
+      <p
+        id="contactMessage"
+        class="hidden text-center text-xs text-gold"
+      ></p>
+
+    </form>
+
+
+    <!-- CONTACT DETAILS -->
+
+    <div class="contact-grid">
+
+      <div class="contact-item reveal">
+
+        <div class="eyebrow mb-3">
+          Artist
+        </div>
+
+        <div class="contact-value">
+          Your Name
+        </div>
+
+      </div>
+
+
+      <div class="contact-item reveal">
+
+        <div class="eyebrow mb-3">
+          Phone
+        </div>
+
+        <a
+          href="tel:+919876543210"
+          class="contact-value"
+        >
+          +91 98765 43210
+        </a>
+
+      </div>
+
+
+      <div class="contact-item reveal">
+
+        <div class="eyebrow mb-3">
+          Email
+        </div>
+
+        <a
+          href="mailto:artist@example.com"
+          class="contact-value"
+        >
+          artist@example.com
+        </a>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     FINAL CTA
+===================================================== -->
+
+<section class="section text-center">
+
+  <div class="max-w-4xl mx-auto reveal">
+
+    <div class="eyebrow mb-6">
+      Your Story Deserves Art
+    </div>
+
+    <h2 class="display-title">
+      Make something
+      <br>
+      <i>timeless.</i>
+    </h2>
+
+    <a
+      href="#commission"
+      class="gold-button mt-10"
+    >
+      Start A Commission
+    </a>
+
+  </div>
+
+</section>
+
+
+</main>
+
+
+<!-- =====================================================
+     FOOTER
+===================================================== -->
+
+<footer>
+
+  <div class="flex flex-col md:flex-row justify-between gap-10">
+
+    <div>
+
+      <a
+        href="#home"
+        class="font-display text-3xl"
+      >
+        STUDIO<span class="text-gold">.</span>
+      </a>
+
+      <p class="text-white/25 text-xs mt-4">
+        Art • Portraits • Digital Visuals
+      </p>
+
+    </div>
+
+
+    <div class="flex gap-8">
+
+      <a
+        href="https://instagram.com/"
+        target="_blank"
+        rel="noopener"
+        class="text-[9px] uppercase tracking-[.25em] text-white/35 hover:text-gold transition"
+      >
+        Instagram
+      </a>
+
+      <a
+        href="#contact"
+        class="text-[9px] uppercase tracking-[.25em] text-white/35 hover:text-gold transition"
+      >
+        Contact
+      </a>
+
+    </div>
+
+  </div>
+
+
+  <div class="border-t border-white/10 mt-16 pt-6">
+
+    <p class="text-[9px] uppercase tracking-[.25em] text-white/20">
+      © 2026 Studio — All Rights Reserved
+    </p>
+
+  </div>
+
+</footer>
+
+
+<!-- =====================================================
+     JAVASCRIPT
+===================================================== -->
+
+<script>
+
+/* =====================================================
+   GSAP
+===================================================== */
+
+gsap.registerPlugin(ScrollTrigger);
+
+
+/* =====================================================
+   LOADER
+===================================================== */
+
+const loaderLine =
+  document.querySelector(".loader-line");
+
+const loader =
+  document.getElementById("loader");
+
+gsap.timeline()
+
+  .to(loaderLine, {
+    width: "130px",
+    duration: 1.2,
+    ease: "power2.inOut"
+  })
+
+  .to(loader, {
+    yPercent: -100,
+    duration: 1,
+    delay: .2,
+    ease: "power4.inOut",
+    onComplete: () => {
+      document.body.classList.remove("loading");
+    }
+  });
+
+
+/* =====================================================
+   CURSOR
+===================================================== */
+
+const cursor =
+  document.getElementById("cursor");
+
+const cursorText =
+  document.getElementById("cursorText");
+
+
+if (window.innerWidth > 768) {
+
+  window.addEventListener("mousemove", e => {
+
+    gsap.to(cursor, {
+      x: e.clientX,
+      y: e.clientY,
+      duration: .15,
+      ease: "power2.out",
+      opacity: 1
+    });
+
+    gsap.to(cursorText, {
+      x: e.clientX,
+      y: e.clientY,
+      duration: .2,
+      ease: "power2.out"
+    });
+
+  });
+
+
+  document.querySelectorAll(
+    "a,button,.art-card,.horizontal-card,.upload-box"
+  ).forEach(el => {
+
+    el.addEventListener("mouseenter", () => {
+
+      cursor.classList.add("cursor-large");
+
+      gsap.to(cursorText, {
+        opacity: 1,
+        duration: .2
+      });
+
+    });
+
+
+    el.addEventListener("mouseleave", () => {
+
+      cursor.classList.remove("cursor-large");
+
+      gsap.to(cursorText, {
+        opacity: 0,
+        duration: .2
+      });
+
+    });
+
+  });
+
+}
+
+
+/* =====================================================
+   NAVBAR
+===================================================== */
+
+const navbar =
+  document.getElementById("navbar");
+
+window.addEventListener("scroll", () => {
+
+  if (window.scrollY > 50) {
+    navbar.classList.add("scrolled");
+  } else {
+    navbar.classList.remove("scrolled");
+  }
+
+});
+
+
+/* =====================================================
+   HERO PARTICLES
+===================================================== */
+
+const canvas =
+  document.getElementById("heroCanvas");
+
+const ctx =
+  canvas.getContext("2d");
+
+let particles = [];
+
+
+function resizeCanvas() {
+
+  const dpr =
+    Math.min(window.devicePixelRatio || 1,2);
+
+  canvas.width =
+    window.innerWidth * dpr;
+
+  canvas.height =
+    window.innerHeight * dpr;
+
+  canvas.style.width =
+    window.innerWidth + "px";
+
+  canvas.style.height =
+    window.innerHeight + "px";
+
+  ctx.setTransform(
+    dpr,
+    0,
+    0,
+    dpr,
+    0,
+    0
+  );
+
+  particles = [];
+
+  const amount =
+    Math.min(
+      120,
+      Math.floor(window.innerWidth / 10)
+    );
+
+  for (let i = 0; i < amount; i++) {
+
+    particles.push({
+
+      x: Math.random() *
+        window.innerWidth,
+
+      y: Math.random() *
+        window.innerHeight,
+
+      r: Math.random() * 1.3 + .2,
+
+      speed:
+        Math.random() * .3 + .05,
+
+      opacity:
+        Math.random() * .25 + .04
+
+    });
+
+  }
+
+}
+
+
+function animateParticles() {
+
+  ctx.clearRect(
+    0,
+    0,
+    window.innerWidth,
+    window.innerHeight
+  );
+
+
+  particles.forEach(p => {
+
+    p.y -= p.speed;
+
+    if (p.y < -5) {
+      p.y =
+        window.innerHeight + 5;
+    }
+
+    ctx.beginPath();
+
+    ctx.arc(
+      p.x,
+      p.y,
+      p.r,
+      0,
+      Math.PI * 2
+    );
+
+    ctx.fillStyle =
+      `rgba(200,164,93,${p.opacity})`;
+
+    ctx.fill();
+
+  });
+
+
+  requestAnimationFrame(
+    animateParticles
+  );
+
+}
+
+
+resizeCanvas();
+
+window.addEventListener(
+  "resize",
+  resizeCanvas
+);
+
+animateParticles();
+
+
+/* =====================================================
+   HERO SCROLL ANIMATION
+===================================================== */
+
+const heroTitle =
+  document.getElementById("heroTitle");
+
+const heroArtwork =
+  document.getElementById("heroArtwork");
+
+const heroFrame =
+  document.getElementById("heroFrame");
+
+const orbit =
+  document.getElementById("orbit");
+
+const heroCaption =
+  document.getElementById("heroCaption");
+
+const heroNumber =
+  document.getElementById("heroNumber");
+
+
+const heroTimeline =
+  gsap.timeline({
+
+    scrollTrigger: {
+
+      trigger: ".hero",
+
+      start: "top top",
+
+      end: "+=3000",
+
+      scrub: 1.2,
+
+      pin: true,
+
+      anticipatePin: 1
+
+    }
+
+  });
+
+
+heroTimeline
+
+  /* TITLE */
+
+  .to(heroTitle, {
+
+    scale: .65,
+
+    opacity: .08,
+
+    y: -100,
+
+    duration: 1
+
+  })
+
+
+  /* ARTWORK */
+
+  .to(heroArtwork, {
+
+    opacity: 1,
+
+    scale: 1,
+
+    duration: 1.2,
+
+    ease: "power3.out"
+
+  }, .25)
+
+
+  /* FRAME */
+
+  .to(heroFrame, {
+
+    opacity: 1,
+
+    scale: 1,
+
+    duration: 1,
+
+    ease: "power3.out"
+
+  }, .4)
+
+
+  /* ORBIT */
+
+  .to(orbit, {
+
+    opacity: 1,
+
+    scale: 1.1,
+
+    duration: 1
+
+  }, .3)
+
+
+  /* ARTWORK MOVEMENT */
+
+  .to(heroArtwork, {
+
+    scale: 1.18,
+
+    rotate: -2,
+
+    y: -25,
+
+    duration: 1.5
+
+  })
+
+
+  .to(heroFrame, {
+
+    scale: 1.14,
+
+    rotate: 3,
+
+    duration: 1.5
+
+  }, "<")
+
+
+  .to(orbit, {
+
+    scale: 1.35,
+
+    rotation: 45,
+
+    duration: 1.5
+
+  }, "<")
+
+
+  /* CAPTION */
+
+  .to(heroCaption, {
+
+    opacity: 1,
+
+    y: -15,
+
+    duration: .8
+
+  })
+
+
+  .to(heroNumber, {
+
+    opacity: 1,
+
+    duration: .8
+
+  }, "<")
+
+
+  /* FINAL ZOOM */
+
+  .to(heroArtwork, {
+
+    scale: 1.55,
+
+    y: -100,
+
+    opacity: 0,
+
+    duration: 1.3
+
+  })
+
+
+  .to(heroFrame, {
+
+    scale: 1.6,
+
+    opacity: 0,
+
+    duration: 1.1
+
+  }, "<")
+
+
+  .to(orbit, {
+
+    scale: 1.7,
+
+    opacity: 0,
+
+    rotation: 100,
+
+    duration: 1
+
+  }, "<")
+
+
+  .to(heroCaption, {
+
+    opacity: 0,
+
+    y: -60,
+
+    duration: .7
+
+  }, "<");
+
+
+/* =====================================================
+   REVEAL ANIMATIONS
+===================================================== */
+
+gsap.utils
+  .toArray(".reveal")
+  .forEach(element => {
+
+    gsap.to(element, {
+
+      opacity: 1,
+
+      y: 0,
+
+      duration: 1.1,
+
+      ease: "power3.out",
+
+      scrollTrigger: {
+
+        trigger: element,
+
+        start: "top 85%",
+
+        once: true
+
+      }
+
+    });
+
+  });
+
+
+/* =====================================================
+   MARQUEE
+===================================================== */
+
+gsap.to("#marqueeTrack", {
+
+  xPercent: -30,
+
+  duration: 15,
+
+  repeat: -1,
+
+  ease: "none"
+
+});
+
+
+/* =====================================================
+   ARTWORK PARALLAX
+===================================================== */
+
+gsap.utils
+  .toArray(".art-card img")
+  .forEach(img => {
+
+    gsap.fromTo(
+
+      img,
+
+      {
+        y: 40
+      },
+
+      {
+        y: -40,
+
+        ease: "none",
+
+        scrollTrigger: {
+
+          trigger: img,
+
+          start: "top bottom",
+
+          end: "bottom top",
+
+          scrub: true
+
+        }
+
+      }
+
+    );
+
+  });
+
+
+/* =====================================================
+   HORIZONTAL SCROLL
+===================================================== */
+
+if (window.innerWidth > 768) {
+
+  const track =
+    document.getElementById(
+      "horizontalTrack"
+    );
+
+
+  gsap.to(track, {
+
+    x: () =>
+      -(track.scrollWidth -
+        window.innerWidth),
+
+    ease: "none",
+
+    scrollTrigger: {
+
+      trigger: "#journey",
+
+      start: "top top",
+
+      end: () =>
+        "+=" +
+        (track.scrollWidth -
+          window.innerWidth),
+
+      scrub: 1,
+
+      pin: true,
+
+      invalidateOnRefresh: true
+
+    }
+
+  });
+
+}
+
+
+/* =====================================================
+   BEFORE / AFTER TRANSFORMATION
+===================================================== */
+
+const transform =
+  document.getElementById("transform");
+
+const finalArt =
+  document.getElementById("finalArt");
+
+const transformLine =
+  document.getElementById("transformLine");
+
+
+gsap.to(
+
+  {
+
+    value: 0
+
+  },
+
+  {
+
+    value: 1,
+
+    duration: 1.8,
+
+    ease: "power2.out",
+
+    scrollTrigger: {
+
+      trigger: transform,
+
+      start: "top 70%",
+
+      once: true,
+
+      onUpdate: self => {
+
+        const progress =
+          self.progress;
+
+        const percent =
+          progress * 100;
+
+
+        finalArt.style.clipPath =
+          `inset(0 ${100-percent}% 0 0)`;
+
+
+        transformLine.style.left =
+          percent + "%";
+
+      }
+
+    }
+
+  }
+
+);
+
+
+/* =====================================================
+   ARTWORK MOUSE PARALLAX
+===================================================== */
+
+if (window.innerWidth > 768) {
+
+  document
+    .querySelectorAll(".magnetic-art")
+    .forEach(card => {
+
+      card.addEventListener(
+        "mousemove",
+        e => {
+
+          const rect =
+            card.getBoundingClientRect();
+
+          const x =
+            e.clientX -
+            rect.left -
+            rect.width / 2;
+
+          const y =
+            e.clientY -
+            rect.top -
+            rect.height / 2;
+
+
+          gsap.to(card, {
+
+            rotateY:
+              x / 35,
+
+            rotateX:
+              -y / 35,
+
+            duration: .5,
+
+            ease: "power2.out",
+
+            transformPerspective:
+              800
+
+          });
+
+        }
+      );
+
+
+      card.addEventListener(
+        "mouseleave",
+        () => {
+
+          gsap.to(card, {
+
+            rotateY: 0,
+
+            rotateX: 0,
+
+            duration: .7,
+
+            ease: "power3.out"
+
+          });
+
+        }
+      );
+
+    });
+
+}
+
+
+/* =====================================================
+   IMAGE UPLOAD
+===================================================== */
+
+const photoInput =
+  document.getElementById(
+    "photoInput"
+  );
+
+const preview =
+  document.getElementById(
+    "preview"
+  );
+
+const uploadContent =
+  document.getElementById(
+    "uploadContent"
+  );
+
+
+photoInput.addEventListener(
+  "change",
+  function() {
+
+    const file =
+      this.files[0];
+
+    if (!file) return;
+
+
+    if (!file.type.startsWith("image/")) {
+
+      alert(
+        "Please select an image."
+      );
+
+      return;
+
+    }
+
+
+    if (
+      file.size >
+      10 * 1024 * 1024
+    ) {
+
+      alert(
+        "Image must be smaller than 10MB."
+      );
+
+      this.value = "";
+
+      return;
+
+    }
+
+
+    const reader =
+      new FileReader();
+
+
+    reader.onload =
+      function(e) {
+
+        preview.src =
+          e.target.result;
+
+        preview.style.display =
+          "block";
+
+        uploadContent.style.display =
+          "none";
+
+      };
+
+
+    reader.readAsDataURL(file);
+
+  }
+);
+
+
+/* =====================================================
+   COMMISSION FORM
+===================================================== */
+
+document
+  .getElementById("commissionForm")
+  .addEventListener(
+    "submit",
+    function(e) {
+
+      e.preventDefault();
+
+
+      const message =
+        document.getElementById(
+          "commissionMessage"
+        );
+
+
+      message.textContent =
+        "Your commission request is ready. The artist will contact you.";
+
+      message.classList.remove(
+        "hidden"
+      );
+
+    }
+  );
+
+
+/* =====================================================
+   CONTACT FORM
+===================================================== */
+
+document
+  .getElementById("contactForm")
+  .addEventListener(
+    "submit",
+    function(e) {
+
+      e.preventDefault();
+
+
+      const name =
+        document.getElementById(
+          "contactName"
+        ).value.trim();
+
+      const email =
+        document.getElementById(
+          "contactEmail"
+        ).value.trim();
+
+      const phone =
+        document.getElementById(
+          "contactPhone"
+        ).value.trim();
+
+      const text =
+        document.getElementById(
+          "contactText"
+        ).value.trim();
+
+
+      const status =
+        document.getElementById(
+          "contactMessage"
+        );
+
+
+      console.log({
+
+        name,
+        email,
+        phone,
+        message: text
+
+      });
+
+
+      status.textContent =
+        `Thank you ${name}. Your message has been received.`;
+
+      status.classList.remove(
+        "hidden"
+      );
+
+    }
+  );
+
+
+/* =====================================================
+   SMOOTH LINKS
+===================================================== */
+
+document
+  .querySelectorAll(
+    'a[href^="#"]'
+  )
+  .forEach(link => {
+
+    link.addEventListener(
+      "click",
+      function(e) {
+
+        const target =
+          document.querySelector(
+            this.getAttribute("href")
+          );
+
+        if (!target) return;
+
+        e.preventDefault();
+
+        target.scrollIntoView({
+          behavior: "smooth"
+        });
+
+      }
+    );
+
+  });
+
+
+/* =====================================================
+   REFRESH
+===================================================== */
+
+window.addEventListener(
+  "load",
+  () => {
+
+    ScrollTrigger.refresh();
+
+  }
+);
+
+</script>
+
+</body>
+</html>
