@@ -1,6 +1,6 @@
 # STUDIO — Artist Portfolio
 
-🔗 **Live Demo:** https://greexhma.github.io/STUDIO/
+🔗 **Live Demo:**  https://greexhma.github.io/artist-web/
 
 A modern and interactive artist portfolio website built to showcase artwork, creative projects, artistic processes, and commission services. The website combines elegant visual design with smooth animations and responsive layouts.
 
